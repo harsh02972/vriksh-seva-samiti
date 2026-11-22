@@ -1,8 +1,5 @@
 import type { Metadata, Viewport } from "next";
 import { Baloo_2, Mukta } from "next/font/google";
-import { Footer } from "@/components/Footer";
-import { Header } from "@/components/Header";
-import { RevealObserver } from "@/components/RevealObserver";
 import { site } from "@/data/site";
 import "./globals.css";
 
@@ -61,20 +58,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
           dangerouslySetInnerHTML={{ __html: `document.documentElement.classList.add("js")` }}
         />
       </head>
-      <body className="flex min-h-dvh flex-col antialiased">
-        <a
-          href="#main"
-          className="sr-only-focusable fixed top-3 left-3 z-[100] rounded-full bg-sun px-5 py-3 font-bold text-sun-ink no-underline shadow-lg"
-        >
-          मुख्य मजकुराकडे जा
-        </a>
-        <Header />
-        <main id="main" tabIndex={-1} className="flex-1 outline-none">
-          {children}
-        </main>
-        <Footer />
-        <RevealObserver />
-      </body>
+      <body className="flex min-h-dvh flex-col antialiased">{children}</body>
     </html>
   );
 }

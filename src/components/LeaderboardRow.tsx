@@ -1,4 +1,4 @@
-import type { Ref } from "react";
+import type { ReactNode, Ref } from "react";
 import { CONTRIBUTOR_LABEL_MR, type RankedEntry } from "@/lib/leaderboard";
 import { formatNumberMr, toMarathiDigits } from "@/lib/format";
 import { Medal } from "./icons";
@@ -19,11 +19,14 @@ export function LeaderboardRow({
   maxTrees,
   ref,
   className,
+  actions,
 }: {
   entry: RankedEntry;
   maxTrees: number;
   ref?: Ref<HTMLLIElement>;
   className?: string;
+  /** Admin preview only: extra buttons at the end of the row. */
+  actions?: ReactNode;
 }) {
   const medal = entry.rank <= 3 ? (entry.rank as 1 | 2 | 3) : null;
   const width = maxTrees > 0 ? Math.max(4, Math.round((entry.trees / maxTrees) * 100)) : 0;
@@ -64,6 +67,7 @@ export function LeaderboardRow({
         <span className="block font-display text-2xl font-extrabold text-brand">{formatNumberMr(entry.trees)}</span>
         <span className="block text-xs text-muted">झाडे</span>
       </span>
+      {actions}
     </li>
   );
 }
