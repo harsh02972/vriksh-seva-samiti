@@ -1,0 +1,35 @@
+import { ArrowRight } from "./icons";
+import { LeafDecor } from "./LeafDecor";
+import { LinkButton, Section } from "./ui";
+
+export function CtaBanner({
+  title = "Start Your Green Journey",
+  text = "आजच रद्दी दान करा आणि वर्ध्यात आणखी एक झाड लावायला व जगवायला मदत करा.",
+}: {
+  title?: string;
+  text?: string;
+}) {
+  return (
+    <Section tone="white" labelledBy="cta-title" containerClassName="py-14 md:py-18">
+      <div className="reveal relative overflow-hidden rounded-[32px] bg-brand px-6 py-10 text-white sm:px-10 md:py-12">
+        <LeafDecor tone="dark" />
+        <div className="relative flex flex-col gap-7 lg:flex-row lg:items-center lg:justify-between">
+          <div className="flex max-w-[560px] flex-col gap-2">
+            <h2 id="cta-title" lang="en" className="m-0 text-[clamp(28px,3.4vw,42px)] font-extrabold text-white">
+              {title}
+            </h2>
+            <p className="m-0 text-lg text-on-dark sm:text-[19px]">{text}</p>
+          </div>
+          <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap">
+            <LinkButton href="/get-involved" variant="sun" size="lg">
+              रद्दी दान करा <ArrowRight size={20} />
+            </LinkButton>
+            <LinkButton href="/get-involved#pickup" variant="ghost-light" size="lg">
+              घरून रद्दी उचलण्याची वेळ ठरवा
+            </LinkButton>
+          </div>
+        </div>
+      </div>
+    </Section>
+  );
+}

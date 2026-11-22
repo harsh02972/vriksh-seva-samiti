@@ -1,26 +1,234 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
+/* ------------------------------------------------------------------
+   Design tokens — taken from logo.png and the approved demo.
+   ------------------------------------------------------------------ */
+@theme {
+  --color-forest-950: #10301a; /* footer */
+  --color-forest-900: #163f21; /* headings, dark sections */
+  --color-forest-800: #1f5230; /* cards on dark */
+  --color-forest-700: #234a2e; /* dividers on dark */
+  --color-brand: #1e5a2c; /* primary green */
+  --color-brand-dark: #14401f;
+  --color-leaf: #7bb342; /* logo light green */
+  --color-mint: #eaf2de; /* soft green surface */
+  --color-mint-line: #c9dbb4;
+  --color-cream: #f5f7ef; /* page background */
+  --color-line: #e2e8d8;
+  --color-ink: #1b2a1f;
+  --color-ink-soft: #33443a;
+  --color-muted: #4d5e50;
+  --color-sun: #f2c230; /* logo yellow */
+  --color-sun-ink: #2b2005;
+  --color-earth: #7a5a1e; /* eyebrow labels */
+  --color-note: #fff4cc; /* sample / placeholder notes */
+  --color-note-ink: #6a5a1e;
+  --color-on-dark: #d3e4c3;
+  --color-on-dark-soft: #b9cfa6;
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
+  --radius-card: 22px;
+  --radius-panel: 28px;
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+  --shadow-card: 0 1px 2px rgb(22 63 33 / 0.06), 0 8px 24px rgb(22 63 33 / 0.06);
+  --shadow-lift: 0 2px 4px rgb(22 63 33 / 0.08), 0 18px 40px rgb(22 63 33 / 0.14);
+
+  --ease-grow: cubic-bezier(0.2, 0.7, 0.2, 1);
+
+  --animate-sway: sway 7s ease-in-out infinite;
+  --animate-float: float 9s ease-in-out infinite;
+  --animate-pulse-ring: pulse-ring 2.4s ease-out infinite;
+
+  @keyframes sway {
+    0%,
+    100% {
+      transform: rotate(-6deg) translateY(0);
+    }
+    50% {
+      transform: rotate(6deg) translateY(-6px);
+    }
+  }
+  @keyframes float {
+    0%,
+    100% {
+      transform: translate3d(0, 0, 0) rotate(0deg);
+    }
+    50% {
+      transform: translate3d(0, -14px, 0) rotate(8deg);
+    }
+  }
+  @keyframes pulse-ring {
+    0% {
+      transform: scale(1);
+      opacity: 0.55;
+    }
+    100% {
+      transform: scale(1.55);
+      opacity: 0;
+    }
   }
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+@theme inline {
+  --font-sans: var(--font-mukta), "Noto Sans Devanagari", system-ui, sans-serif;
+  --font-display: var(--font-baloo), var(--font-mukta), system-ui, sans-serif;
+}
+
+/* ------------------------------------------------------------------
+   Base
+   ------------------------------------------------------------------ */
+@layer base {
+  html {
+    -webkit-text-size-adjust: 100%;
+    scroll-padding-top: 88px;
+  }
+  @media (prefers-reduced-motion: no-preference) {
+    html {
+      scroll-behavior: smooth;
+    }
+  }
+  body {
+    background: var(--color-cream);
+    color: var(--color-ink);
+    font-family: var(--font-sans);
+    font-size: 17px;
+    line-height: 1.65;
+    text-rendering: optimizeLegibility;
+  }
+  @media (min-width: 768px) {
+    body {
+      font-size: 18px;
+    }
+  }
+  h1,
+  h2,
+  h3,
+  h4 {
+    font-family: var(--font-display);
+    color: var(--color-forest-900);
+    line-height: 1.12;
+    text-wrap: balance;
+  }
+  p {
+    text-wrap: pretty;
+  }
+  a {
+    color: var(--color-brand);
+  }
+  a:hover {
+    color: var(--color-brand-dark);
+  }
+  :focus-visible {
+    outline: 3px solid var(--color-sun);
+    outline-offset: 3px;
+    border-radius: 6px;
+  }
+  ::selection {
+    background: var(--color-leaf);
+    color: #fff;
+  }
+}
+
+/* ------------------------------------------------------------------
+   Scroll reveal (progressive enhancement)
+   - Without JS everything is visible.
+   - The inline <head> script adds .js before first paint.
+   - If the app bundle is slow/broken, the fallback animation unhides after 3s.
+   - RevealObserver adds .reveal-armed, which cancels the fallback.
+   ------------------------------------------------------------------ */
+@keyframes unhide {
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+.js .reveal:not(.is-visible) {
+  opacity: 0;
+  transform: translate3d(0, 22px, 0);
+  animation: unhide 0s 3s forwards;
+}
+.js.reveal-armed .reveal:not(.is-visible) {
+  animation: none;
+}
+.js .reveal {
+  transition:
+    opacity 0.7s var(--ease-grow),
+    transform 0.7s var(--ease-grow);
+  transition-delay: var(--reveal-delay, 0ms);
+}
+
+/* Count-up numbers: hidden only until the client takes over (or 3s fallback). */
+.js .countup-pending {
+  opacity: 0;
+  animation: unhide 0s 3s forwards;
+}
+
+/* Hover lift for cards (pointer devices only). */
+@media (hover: hover) {
+  .lift {
+    transition:
+      transform 0.35s var(--ease-grow),
+      box-shadow 0.35s var(--ease-grow);
+  }
+  .lift:hover {
+    transform: translateY(-6px);
+    box-shadow: var(--shadow-lift);
+  }
+}
+
+/* Growing progress bars. */
+.grow-bar {
+  transform-origin: left center;
+  transition: transform 1.2s var(--ease-grow);
+}
+.js .reveal:not(.is-visible) .grow-bar {
+  transform: scaleX(0);
+}
+
+/* Sapling line-drawing motif. */
+.draw-path {
+  stroke-dasharray: 1;
+  stroke-dashoffset: 0;
+  transition: stroke-dashoffset 1.6s var(--ease-grow) 0.2s;
+}
+.js .reveal:not(.is-visible) .draw-path {
+  stroke-dashoffset: 1;
+}
+
+/* Visually hidden but available to screen readers. */
+.sr-only-focusable:not(:focus):not(:focus-within) {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* ------------------------------------------------------------------
+   Reduced motion: no movement, everything visible immediately.
+   ------------------------------------------------------------------ */
+@media (prefers-reduced-motion: reduce) {
+  .js .reveal:not(.is-visible),
+  .js .countup-pending {
+    opacity: 1;
+    transform: none;
+    animation: none;
+  }
+  .js .reveal:not(.is-visible) .grow-bar {
+    transform: none;
+  }
+  .js .reveal:not(.is-visible) .draw-path {
+    stroke-dashoffset: 0;
+  }
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
 }
