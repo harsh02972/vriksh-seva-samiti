@@ -108,9 +108,57 @@ The logo (`public/logo.png`), icons and share image (`public/og-image.jpg`) are 
 - `AGENTS.md` comes from `create-next-app` (Next.js writes it back on `next dev`). It is kept on purpose.
 
 ## Ready for Phase 2
-- Tables can follow the types in `src/data/site.ts`: `impact_stats`, `workflow_steps`, `accepted_items`, `give_methods`, `plantings`,
-  `gallery_photos`, `leaderboard_entries`, `campaigns`, `featured_video`, `about_values`.
-- Replace the functions in `src/lib/content.ts` with Supabase queries, and add `"use cache"` + `cacheTag` so admin edits can revalidate pages
-  (Cache Components is already on).
-- Admin uploads: photos to Supabase Storage (add the host to `images.remotePatterns`), and the video as MP4 ≤ 15 MB.
-  Add a WebVTT caption track for the video, since it has voice.
+Done — see the Phase 2 report below.
+
+---
+
+# Phase 2 Report — Supabase database and admin panel
+
+## What was built
+- **Database** (`supabase/migrations/0001–0007`): donors, contributions (private `amount_rs`), plantings with photos,
+  linked donors and survival checks, gallery, featured video, campaigns, site numbers with per-number override,
+  page texts and contact details. Row Level Security is on for every table. A public Storage bucket accepts uploads from admins only.
+- **Privacy:** visitors can read only the `public_*` views and `site_stats_public()`. None of them contain amounts.
+  The leaderboard view returns name, type and trees only, and only for visible donors with trees.
+- **Admin panel** at `/admin` (works on phones): email + password sign-in for listed admins only (no sign-up).
+  It has 10 screens:
+  - Dashboard: totals, including the ₹ total for admins, and recent entries.
+  - Contributions: can create a new donor while adding an entry.
+  - Donors.
+  - Leaderboard preview with Hide/Show.
+  - Plantings: multi-photo upload, map location, linked donors, survival checks.
+  - Gallery: multi-upload, reorder, Show on Home.
+  - Video: MP4 plus poster.
+  - Campaigns: one active at a time.
+  - Site numbers.
+  - Page texts and contact details.
+- **Website connected:** every placeholder source now reads the database. If the database is empty, fails or is not
+  configured, each section shows its Phase 1 placeholder, and each page text falls back to the original wording.
+  Saving in the admin refreshes the site immediately (`updateTag`). Otherwise the site refreshes within a minute, with no rebuild.
+
+## Checks run
+- `tsc --noEmit`, `npm run lint`: clean.
+- `npm run build`: passes. Public pages are prerendered (refresh every 1 min). Admin pages prerender only a loading shell; their data is streamed per request.
+- `npm test`: **23/23 pass**.
+  - 19 database tests: the real SQL files run twice in an in-memory Postgres that copies Supabase's roles and default rights.
+    They cover anon access to amounts, hidden data, writes and uploads, a signed-in non-admin, and admin behaviour (triggers, overrides, limits).
+  - 4 code checks: public code never reads amounts or imports admin code; built pages contain no amounts.
+- **Not run here:** `npm run test:live` and a click-through of the admin with real data. There are no project keys on this machine.
+  Run both after setup (README → Phase 2 setup, step 5). The SQL was tested on a Supabase-like Postgres, not on Supabase itself.
+
+## Decisions and changes (please confirm)
+- **Home photo strip:** a new Home section, shown only when gallery photos are marked "Show on Home". With none marked, Home looks exactly as in Phase 1.
+- **Planting cards** now show multiple photos (swipe), a "नकाशा" map link when a location is set, and a "सहभाग:" partner line.
+- **Campaign section:** hidden when there is real data but no active campaign. The sample campaign shows only while the database is empty.
+- **Video:** checked in the browser (MP4, ≤ 15 MB, ≤ 25 s) but not re-encoded. A poster is captured from the video automatically.
+- **Page texts:** text left unchanged from the original is not stored, so empty means "original wording".
+- **Netlify:** needs only the URL, the publishable key and the site URL. The secret key stays on your computer for `admin:create`.
+
+## Known limits
+- A photo or video uploaded and then not saved (the admin closes the page) stays in Storage unused. A replaced page-text photo is not deleted either. Both are harmless; clean up in Storage if wanted.
+- After the first Netlify deploy, check that an admin save shows up on the live site straight away. If Netlify ignores the cache tag, changes still appear within a minute.
+- The leaderboard lists donors with at least one tree; donors with only kg recorded appear once trees are added.
+
+## Commits
+Database & tests · public site connected (with fallbacks) · admin sign-in, dashboard, donors, contributions, leaderboard ·
+plantings & uploads · gallery & video · campaigns, numbers & page texts · setup guide & code privacy tests.

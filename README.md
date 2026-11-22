@@ -192,11 +192,12 @@ npm run test:live       # after steps 1–4: checks your real project with the p
 npm test                # everything in tests/
 ```
 
-`test:security` proves, among other things, that an anonymous visitor cannot read `amount_rs` (not from the table,
-any view, any function, the API description or GraphQL), cannot see hidden donors or draft plantings, and cannot upload
-or change anything. It also checks that public code never reads amounts and that built pages contain none.
+`test:security` proves, among other things, that an anonymous visitor cannot read `amount_rs` from any table, view
+or function, cannot see hidden donors or draft plantings, and cannot upload or change anything. It also checks that
+public code never reads amounts and that built pages contain none.
 
-`test:live` does the same denials against your real project. Run it after every change to the SQL.
+`test:live` checks the same denials against your real project, and also its REST API description (OpenAPI) and GraphQL.
+Run it after every change to the SQL.
 
 By hand: open `/admin` in a private window. It must send you to the login page. Then view the source of `/leaderboard`:
 it shows only names, types and tree counts.
@@ -214,6 +215,6 @@ it shows only names, types and tree counts.
   refreshes at most a minute later.
 - **Uploads:** photos are resized in the browser (longest side 2000 px, WebP), then uploaded straight to the
   `public-media` bucket with the admin's own session. The video is checked in the browser (MP4, ≤ 15 MB, ≤ 25 s) and
-  is not re-encoded, so compress it before uploading if needed. Removed or replaced photos and videos are deleted from Storage.
+  is not re-encoded, so compress it before uploading if needed. Photos removed from a planting or the gallery, and a replaced video or poster, are deleted from Storage.
 - **Leaderboard:** adding, changing or deleting a contribution updates the donor's trees and kg automatically (database trigger).
   Untick "Show on public leaderboard" (or use **Leaderboard → Hide**) to keep a donor's name off the site.
