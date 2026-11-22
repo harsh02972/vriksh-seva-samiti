@@ -6,17 +6,18 @@ import { RevealObserver } from "@/components/RevealObserver";
 import { site } from "@/data/site";
 import "./globals.css";
 
+// Baloo 2 is a variable font: one file per subset covers every weight.
 const baloo = Baloo_2({
   variable: "--font-baloo",
   subsets: ["latin", "devanagari"],
-  weight: ["500", "600", "700", "800"],
   display: "swap",
 });
 
 const mukta = Mukta({
   variable: "--font-mukta",
   subsets: ["latin", "devanagari"],
-  weight: ["400", "500", "600", "700"],
+  // Only the weights the design uses (each weight is a separate file).
+  weight: ["400", "600", "700"],
   display: "swap",
 });
 

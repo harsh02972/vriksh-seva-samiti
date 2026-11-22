@@ -130,10 +130,9 @@
 
 /* ------------------------------------------------------------------
    Scroll reveal (progressive enhancement)
-   - Without JS everything is visible.
-   - The inline <head> script adds .js before first paint.
-   - If the app bundle is slow/broken, the fallback animation unhides after 3s.
-   - RevealObserver adds .reveal-armed, which cancels the fallback.
+   - Server HTML is always fully visible (no-JS safe, no LCP delay).
+   - After hydration, RevealObserver adds .reveal-pending ONLY to blocks that
+     are below the fold (not yet seen), then removes it as they scroll in.
    ------------------------------------------------------------------ */
 @keyframes unhide {
   to {
@@ -141,19 +140,21 @@
     transform: none;
   }
 }
-.js .reveal:not(.is-visible) {
-  opacity: 0;
-  transform: translate3d(0, 22px, 0);
-  animation: unhide 0s 3s forwards;
-}
-.js.reveal-armed .reveal:not(.is-visible) {
-  animation: none;
-}
-.js .reveal {
+.reveal {
   transition:
     opacity 0.7s var(--ease-grow),
     transform 0.7s var(--ease-grow);
   transition-delay: var(--reveal-delay, 0ms);
+}
+.reveal.reveal-pending {
+  opacity: 0;
+  transform: translate3d(0, 22px, 0);
+}
+
+/* Pure-CSS entrance for above-the-fold hero content (no JS needed). */
+.hero-enter {
+  animation: fade-up 0.8s var(--ease-grow) both;
+  animation-delay: var(--reveal-delay, 0ms);
 }
 
 /* Count-up numbers: hidden only until the client takes over (or 3s fallback). */
@@ -167,7 +168,8 @@
   .lift {
     transition:
       transform 0.35s var(--ease-grow),
-      box-shadow 0.35s var(--ease-grow);
+      box-shadow 0.35s var(--ease-grow),
+      opacity 0.7s var(--ease-grow);
   }
   .lift:hover {
     transform: translateY(-6px);
@@ -180,7 +182,7 @@
   transform-origin: left center;
   transition: transform 1.2s var(--ease-grow);
 }
-.js .reveal:not(.is-visible) .grow-bar {
+.reveal-pending .grow-bar {
   transform: scaleX(0);
 }
 
@@ -190,7 +192,7 @@
   stroke-dashoffset: 0;
   transition: stroke-dashoffset 1.6s var(--ease-grow) 0.2s;
 }
-.js .reveal:not(.is-visible) .draw-path {
+.reveal-pending .draw-path {
   stroke-dashoffset: 1;
 }
 
@@ -211,16 +213,16 @@
    Reduced motion: no movement, everything visible immediately.
    ------------------------------------------------------------------ */
 @media (prefers-reduced-motion: reduce) {
-  .js .reveal:not(.is-visible),
+  .reveal.reveal-pending,
   .js .countup-pending {
     opacity: 1;
     transform: none;
     animation: none;
   }
-  .js .reveal:not(.is-visible) .grow-bar {
+  .reveal-pending .grow-bar {
     transform: none;
   }
-  .js .reveal:not(.is-visible) .draw-path {
+  .reveal-pending .draw-path {
     stroke-dashoffset: 0;
   }
   *,

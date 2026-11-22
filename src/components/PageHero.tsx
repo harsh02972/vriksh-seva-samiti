@@ -26,7 +26,7 @@ export function PageHero({
         <path d="M0 60V30c240-30 480-30 720 0s480 30 720 0v30z" fill="currentColor" />
       </svg>
       <Container className="relative flex flex-col items-start gap-3 pt-12 pb-16 md:pt-16 md:pb-24">
-        <div className="reveal flex flex-col items-start gap-3">
+        <div className="hero-enter flex flex-col items-start gap-3">
           <Eyebrow>{eyebrow}</Eyebrow>
           <h1 id="page-title" lang="en" className="m-0 text-[clamp(36px,5.2vw,60px)] font-extrabold">
             {title}

@@ -182,7 +182,7 @@ export function SampleNote({
   return (
     <span
       className={cn(
-        "inline-flex items-center gap-1.5 self-start rounded-lg bg-note px-2.5 py-1 text-[13px] leading-snug font-medium text-note-ink",
+        "inline-flex items-center gap-1.5 self-start rounded-lg bg-note px-2.5 py-1 text-[13px] leading-snug font-semibold text-note-ink",
         className,
       )}
     >

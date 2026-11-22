@@ -59,7 +59,7 @@ export default async function HomePage() {
       <section aria-labelledby="hero-title" className="relative overflow-hidden bg-mint">
         <LeafDecor />
         <Container className="relative grid items-center gap-10 py-12 md:py-20 lg:grid-cols-[1.15fr_1fr] lg:gap-12">
-          <div className="reveal flex flex-col gap-5">
+          <div className="hero-enter flex flex-col gap-5">
             <span className="self-start rounded-full border border-mint-line bg-white px-4 py-1.5 text-[15px] font-semibold text-brand">
               {site.placeMr} · हिरव्या वर्ध्यासाठी
             </span>

@@ -6,45 +6,47 @@ import { useEffect } from "react";
 /**
  * One shared IntersectionObserver for every `.reveal` element on the page.
  * Pages stay Server Components; they only add the `reveal` class.
- * Re-scans after each client-side navigation.
+ *
+ * Content is visible in the server HTML. After hydration we hide only the
+ * blocks that are still below the fold (the visitor has not seen them yet)
+ * and fade them in as they scroll into view. Nothing above the fold is ever
+ * hidden, so the Largest Contentful Paint is never delayed by JavaScript.
  */
 export function RevealObserver() {
   const pathname = usePathname();
 
   useEffect(() => {
-    const root = document.documentElement;
-    const elements = Array.from(document.querySelectorAll<HTMLElement>(".reveal:not(.is-visible)"));
-    const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    if (!("IntersectionObserver" in window)) return;
 
-    if (reduceMotion || !("IntersectionObserver" in window)) {
-      elements.forEach((el) => el.classList.add("is-visible"));
-      root.classList.add("reveal-armed");
-      return;
-    }
-
-    // Anything already on screen animates in right away.
     const viewportHeight = window.innerHeight;
-    for (const el of elements) {
+    const pending = Array.from(document.querySelectorAll<HTMLElement>(".reveal:not([data-revealed])")).filter((el) => {
       const rect = el.getBoundingClientRect();
-      if (rect.top < viewportHeight && rect.bottom > 0) el.classList.add("is-visible");
-    }
-    root.classList.add("reveal-armed");
+      const belowFold = rect.top > viewportHeight * 0.92;
+      if (!belowFold) el.dataset.revealed = "";
+      return belowFold;
+    });
+    pending.forEach((el) => el.classList.add("reveal-pending"));
 
     const observer = new IntersectionObserver(
       (entries) => {
         for (const entry of entries) {
-          if (entry.isIntersecting) {
-            entry.target.classList.add("is-visible");
-            observer.unobserve(entry.target);
-          }
+          if (!entry.isIntersecting) continue;
+          const el = entry.target as HTMLElement;
+          el.classList.remove("reveal-pending");
+          el.dataset.revealed = "";
+          observer.unobserve(el);
         }
       },
-      { rootMargin: "0px 0px -8% 0px", threshold: 0.08 },
+      { rootMargin: "0px 0px -8% 0px", threshold: 0.05 },
     );
-    elements.forEach((el) => {
-      if (!el.classList.contains("is-visible")) observer.observe(el);
-    });
-    return () => observer.disconnect();
+    pending.forEach((el) => observer.observe(el));
+
+    return () => {
+      observer.disconnect();
+      // Never leave content hidden if this effect is torn down.
+      pending.forEach((el) => el.classList.remove("reveal-pending"));
+    };
   }, [pathname]);
 
   return null;

@@ -7,7 +7,7 @@ import { SampleNote } from "../ui";
 export function TreeCounterCard({ stats }: { stats: ImpactStats }) {
   const progress = percent(stats.treesPlanted, stats.nextMilestone);
   return (
-    <div className="reveal w-full max-w-[440px] rounded-[28px] bg-white p-6 shadow-[0_18px_40px_rgba(22,63,33,0.12)] sm:p-8">
+    <div style={{ ["--reveal-delay" as string]: "150ms" }} className="hero-enter w-full max-w-[440px] rounded-[28px] bg-white p-6 shadow-[0_18px_40px_rgba(22,63,33,0.12)] sm:p-8">
       <div className="flex items-center gap-3.5">
         <span className="inline-flex h-[52px] w-[52px] items-center justify-center rounded-2xl bg-mint text-brand">
           <Sprout size={28} />
@@ -39,7 +39,7 @@ export function TreeCounterCard({ stats }: { stats: ImpactStats }) {
         aria-valuenow={stats.treesPlanted}
         aria-label={`पुढच्या लक्ष्याकडे प्रगती: ${toMarathiDigits(progress)} टक्के`}
       >
-        <div className="grow-bar h-full rounded-full bg-leaf" style={{ width: `${progress}%` }} />
+        <div className="lb-bar h-full rounded-full bg-leaf" style={{ width: `${progress}%`, animationDelay: "400ms", animationDuration: "1.6s" }} />
       </div>
       <div className="mt-2.5 flex flex-wrap justify-between gap-3 text-[15px] text-muted">
         <span>पुढचे लक्ष्य: {formatNumberMr(stats.nextMilestone)} झाडे</span>
