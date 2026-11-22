@@ -232,3 +232,60 @@
     scroll-behavior: auto !important;
   }
 }
+
+/* Gallery + lightbox entrance animations */
+@keyframes fade-up {
+  from {
+    opacity: 0;
+    transform: translate3d(0, 14px, 0) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+@keyframes photo-in {
+  from {
+    opacity: 0;
+    transform: scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+.gallery-item {
+  animation: fade-up 0.5s var(--ease-grow) both;
+}
+.lightbox {
+  animation: fade-in 0.2s ease-out both;
+}
+.lightbox-photo {
+  animation: photo-in 0.35s var(--ease-grow) both;
+  transition: transform 0.25s var(--ease-grow);
+}
+
+/* Leaderboard row entrance + bar growth */
+@keyframes bar-grow {
+  from {
+    transform: scaleX(0);
+  }
+  to {
+    transform: scaleX(1);
+  }
+}
+.lb-bar {
+  transform-origin: left center;
+  animation: bar-grow 1s var(--ease-grow) both;
+}
+.lb-enter {
+  animation: fade-up 0.45s var(--ease-grow) both;
+}
