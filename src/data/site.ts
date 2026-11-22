@@ -1,10 +1,10 @@
 /**
- * ALL WEBSITE CONTENT LIVES IN THIS ONE FILE (Phase 1).
+ * BUILT-IN FALLBACK CONTENT (the Phase 1 placeholders).
  *
- * Phase 2 plan: each exported block below maps 1:1 to a Supabase table
- * (see the "table:" comment on each). Pages never import this file directly;
- * they go through src/lib/content.ts, so only that file changes when the
- * data moves to the database.
+ * Since Phase 2 the real content comes from Supabase (see src/lib/content.ts).
+ * This file is used only when the database is not configured, cannot be reached,
+ * or has no rows yet for a section — so the website never breaks or goes blank.
+ * Page texts have their defaults in src/lib/page-text.ts.
  *
  * Rules:
  * - `isSample: true` / `isPlaceholder: true` marks anything that is NOT real yet.
@@ -39,8 +39,6 @@ export interface SiteInfo {
   /** Used for metadata, sitemap and share links. */
   siteUrl: string;
   copyrightYear: number;
-  /** When true, the site shows the "sample data" notes. Set false once real data is in. */
-  showSampleNotes: boolean;
 }
 
 export interface ContactInfo {
@@ -51,6 +49,8 @@ export interface ContactInfo {
   addressMr: string;
   mapUrl: string;
   collectionHoursMr: string;
+  whatsappGroupUrl?: string;
+  socials?: { facebook?: string; instagram?: string; youtube?: string };
   isPlaceholder: boolean;
 }
 
@@ -101,7 +101,14 @@ export interface Planting {
   speciesMr: string[];
   partnerMr?: string;
   careNoteMr: string;
+  /** Main photo (the first of `photos`). */
   image: ImageAsset;
+  /** All photos, main photo first. */
+  photos?: ImageAsset[];
+  /** Google Maps link when a map location is set. */
+  mapUrl?: string;
+  /** Donors who helped (only those visible on the leaderboard). */
+  donorNamesMr?: string[];
   isSample: boolean;
 }
 
@@ -114,6 +121,7 @@ export interface GalleryPhoto {
   placeMr: string;
   date: string;
   image: ImageAsset;
+  showOnHome?: boolean;
   isSample: boolean;
 }
 
@@ -176,10 +184,9 @@ export const site: SiteInfo = {
   taglineEn: "Your Scrap Can Grow a Forest",
   descriptionMr:
     "वृक्ष सेवा समिती, सिंदी (मेघे), वर्धा — शाळा, महाविद्यालये आणि नागरिकांकडून रद्दी व भंगार गोळा करून, त्याच्या विक्रीतून वर्धा शहरात झाडे लावते आणि ती मोठी होईपर्यंत त्यांची काळजी घेते.",
-  // PLACEHOLDER: replace with the real domain after Netlify deploy.
-  siteUrl: "https://vriksh-seva-samiti.netlify.app",
+  // Set NEXT_PUBLIC_SITE_URL to the real domain (Netlify → Environment variables).
+  siteUrl: (process.env.NEXT_PUBLIC_SITE_URL || "https://vriksh-seva-samiti.netlify.app").replace(/\/$/, ""),
   copyrightYear: 2026,
-  showSampleNotes: true,
 };
 
 // PLACEHOLDER contact details — replace all of these with the real ones.

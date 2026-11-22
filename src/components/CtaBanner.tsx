@@ -1,14 +1,15 @@
+import { getPageText } from "@/lib/content";
 import { ArrowRight } from "./icons";
 import { LeafDecor } from "./LeafDecor";
 import { LinkButton, Section } from "./ui";
 
-export function CtaBanner({
-  title = "Start Your Green Journey",
-  text = "आजच रद्दी दान करा आणि वर्ध्यात आणखी एक झाड लावायला व जगवायला मदत करा.",
-}: {
-  title?: string;
-  text?: string;
-}) {
+/** Green call-to-action banner. Without props it uses the texts set for Home in the admin. */
+export async function CtaBanner({ title, text }: { title?: string; text?: string }) {
+  if (!title || !text) {
+    const t = await getPageText("home");
+    title ??= t.ctaTitle;
+    text ??= t.ctaText;
+  }
   return (
     <Section tone="white" labelledBy="cta-title" containerClassName="py-14 md:py-18">
       <div className="reveal relative overflow-hidden rounded-[32px] bg-brand px-6 py-10 text-white sm:px-10 md:py-12">

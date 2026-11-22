@@ -2,22 +2,17 @@ import type { Metadata } from "next";
 import { ArrowRight, Clock, Mail, MapPin, Phone, WhatsApp } from "@/components/icons";
 import { PageHero } from "@/components/PageHero";
 import { AnchorButton, LinkButton, revealDelay, SampleNote, Section, SectionHeading } from "@/components/ui";
-import { getContact } from "@/lib/content";
+import { getContact, getPageText } from "@/lib/content";
+import { parseFaqs } from "@/lib/page-text";
 
 export const metadata: Metadata = {
   title: "Contact",
   description: "वृक्ष सेवा समिती, सिंदी (मेघे), वर्धा — फोन, WhatsApp, ईमेल आणि पत्ता.",
 };
 
-const faqs = [
-  { q: "रद्दी देण्यासाठी नोंदणी करावी लागते का?", a: "नाही. कोणतीही नोंदणी किंवा लॉगिन नाही. फक्त रद्दी आणा किंवा आम्हाला कळवा." },
-  { q: "किती रद्दी असेल तर घरून उचलता?", a: "साधारणपणे २५ किलोपेक्षा जास्त असल्यास आम्ही घरून उचलण्याची वेळ ठरवतो. कमी असल्यास संकलन केंद्रावर आणून द्या." },
-  { q: "माझे नाव लीडरबोर्डवर कसे येईल?", a: "तुम्ही दिलेल्या रद्दीची नोंद तुमच्या नावाने होते आणि त्यातून लागलेल्या झाडांच्या संख्येनुसार नाव यादीत येते. नाव नको असल्यास कळवा." },
-  { q: "आमच्या शाळेत मोहीम घेता येईल का?", a: "हो! शाळा व महाविद्यालयांसाठी आम्ही रद्दी संकलन आणि वृक्षारोपण मोहीम घेतो. फोन किंवा WhatsApp करा." },
-];
-
 export default async function ContactPage() {
-  const contact = await getContact();
+  const [contact, t] = await Promise.all([getContact(), getPageText("contact")]);
+  const faqs = parseFaqs(t.faqs);
   const cards = [
     {
       Icon: Phone,
@@ -45,12 +40,18 @@ export default async function ContactPage() {
     },
   ];
 
+  const socialLinks = [
+    { label: "Facebook", href: contact.socials?.facebook },
+    { label: "Instagram", href: contact.socials?.instagram },
+    { label: "YouTube", href: contact.socials?.youtube },
+  ].filter((s): s is { label: string; href: string } => Boolean(s.href));
+
   return (
     <>
       <PageHero
         eyebrow="Get in Touch"
-        title="Contact"
-        intro="रद्दी दान, शाळेत मोहीम, स्वयंसेवा किंवा कोणताही प्रश्न — आम्हाला नक्की संपर्क करा."
+        title={t.heroTitle}
+        intro={t.heroIntro}
       >
         {contact.isPlaceholder && <SampleNote force>सर्व संपर्क तपशील नमुना आहेत — खरे तपशील लवकरच</SampleNote>}
       </PageHero>
@@ -83,11 +84,25 @@ export default async function ContactPage() {
             <strong className="text-forest-900">रद्दी संकलन वेळ:</strong> {contact.collectionHoursMr}
           </span>
         </div>
+        {(contact.whatsappGroupUrl || socialLinks.length > 0) && (
+          <div className="reveal mt-5 flex flex-col gap-3 rounded-[22px] bg-white p-5 sm:flex-row sm:flex-wrap sm:items-center">
+            {contact.whatsappGroupUrl && (
+              <AnchorButton href={contact.whatsappGroupUrl} target="_blank" rel="noopener noreferrer">
+                <WhatsApp size={20} /> आमच्या <span lang="en">WhatsApp</span> ग्रुपमध्ये सामील व्हा
+              </AnchorButton>
+            )}
+            {socialLinks.map((s) => (
+              <AnchorButton key={s.href} href={s.href} target="_blank" rel="noopener noreferrer" variant="outline">
+                <span lang="en">{s.label}</span>
+              </AnchorButton>
+            ))}
+          </div>
+        )}
       </Section>
 
       <Section tone="white" labelledBy="faq-title">
         <div className="mx-auto flex max-w-[820px] flex-col gap-8">
-          <SectionHeading id="faq-title" eyebrow="FAQ" title="Common Questions" />
+          <SectionHeading id="faq-title" eyebrow="FAQ" title={t.faqTitle} />
           <div className="flex flex-col gap-3">
             {faqs.map((f) => (
               <details key={f.q} className="reveal group rounded-[18px] border border-line bg-cream px-5 py-4 open:bg-white">

@@ -1,6 +1,5 @@
 import Link from "next/link";
 import type { ComponentProps, CSSProperties, ReactNode } from "react";
-import { site } from "@/data/site";
 
 export function cn(...classes: (string | false | null | undefined)[]) {
   return classes.filter(Boolean).join(" ");
@@ -166,7 +165,8 @@ export function AnchorButton({
 
 /**
  * Yellow note shown next to sample numbers / placeholder media.
- * Hidden automatically once `site.showSampleNotes` is set to false.
+ * Callers render it only when the data is a placeholder (isSample / isPlaceholder),
+ * so it disappears by itself once real data is in the database.
  */
 export function SampleNote({
   children = "नमुना माहिती — खरी माहिती नंतर भरली जाईल",
@@ -175,10 +175,10 @@ export function SampleNote({
 }: {
   children?: ReactNode;
   className?: string;
-  /** Show even when global sample notes are switched off (e.g. placeholder contact details). */
+  /** Kept for compatibility; notes are always shown when rendered. */
   force?: boolean;
 }) {
-  if (!site.showSampleNotes && !force) return null;
+  void force;
   return (
     <span
       className={cn(

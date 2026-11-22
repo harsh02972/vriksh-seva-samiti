@@ -1,12 +1,19 @@
 import Image from "next/image";
 import Link from "next/link";
-import { contact, site } from "@/data/site";
+import { site } from "@/data/site";
+import { getContact } from "@/lib/content";
 import { toMarathiDigits } from "@/lib/format";
 import { getInvolved, mainNav, privacy } from "@/lib/nav";
 import { Mail, MapPin, Phone, WhatsApp } from "./icons";
 import { Container, SampleNote } from "./ui";
 
-export function Footer() {
+export async function Footer() {
+  const contact = await getContact();
+  const socials = [
+    { label: "Facebook", href: contact.socials?.facebook },
+    { label: "Instagram", href: contact.socials?.instagram },
+    { label: "YouTube", href: contact.socials?.youtube },
+  ].filter((s): s is { label: string; href: string } => Boolean(s.href));
   return (
     <footer className="bg-forest-950 text-on-dark">
       <Container className="grid gap-10 pt-14 pb-8 md:grid-cols-2 lg:grid-cols-[2fr_1fr_1fr_1.4fr]">
@@ -101,6 +108,27 @@ export function Footer() {
               <span lang="en">{contact.email}</span>
             </a>
           </address>
+          {contact.whatsappGroupUrl && (
+            <a
+              href={contact.whatsappGroupUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="mt-1 inline-flex items-center gap-2 self-start rounded-full bg-forest-800 px-4 py-2 font-semibold text-white no-underline hover:bg-forest-700 hover:text-white"
+            >
+              <WhatsApp size={18} /> <span lang="en">WhatsApp</span> ग्रुप
+            </a>
+          )}
+          {socials.length > 0 && (
+            <ul className="mt-1 flex flex-wrap gap-x-4 gap-y-1" aria-label="सोशल मीडिया">
+              {socials.map((s) => (
+                <li key={s.href}>
+                  <a href={s.href} target="_blank" rel="noopener noreferrer" lang="en" className="text-on-dark hover:text-white">
+                    {s.label}
+                  </a>
+                </li>
+              ))}
+            </ul>
+          )}
           {contact.isPlaceholder && <SampleNote force>संपर्क तपशील नमुना आहेत</SampleNote>}
         </div>
       </Container>

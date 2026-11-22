@@ -5,7 +5,17 @@ import { Droplet, Recycle, Tree, Users } from "../icons";
 import { LeafDecor } from "../LeafDecor";
 import { revealDelay, SampleNote, Section, SectionHeading } from "../ui";
 
-export function ImpactStats({ stats, headingLevel = "h2" }: { stats: Stats; headingLevel?: "h2" }) {
+export function ImpactStats({
+  stats,
+  headingLevel = "h2",
+  title = "Our Green Impact",
+  intro = "प्रत्येक किलो रद्दी म्हणजे हिरव्या वर्ध्याकडे एक पाऊल.",
+}: {
+  stats: Stats;
+  headingLevel?: "h2";
+  title?: string;
+  intro?: string;
+}) {
   const items = [
     { value: stats.treesPlanted, titleEn: "Trees Planted", textMr: "वर्धा शहरात लावलेली झाडे", Icon: Tree },
     {
@@ -24,8 +34,8 @@ export function ImpactStats({ stats, headingLevel = "h2" }: { stats: Stats; head
         <SectionHeading
           id="impact-title"
           as={headingLevel}
-          title="Our Green Impact"
-          intro="प्रत्येक किलो रद्दी म्हणजे हिरव्या वर्ध्याकडे एक पाऊल."
+          title={title}
+          intro={intro}
           onDark
         />
         <ul className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4 lg:gap-5">

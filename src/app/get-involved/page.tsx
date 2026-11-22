@@ -5,7 +5,8 @@ import { ArrowRight, Box, Check, Clock, MapPin, Phone, School, Truck, Users, Wha
 import { PageHero } from "@/components/PageHero";
 import { PickupRequest } from "@/components/PickupRequest";
 import { AnchorButton, Container, LinkButton, revealDelay, SampleNote, Section, SectionHeading } from "@/components/ui";
-import { getAcceptedItems, getContact, getCurrentCampaign, getGiveMethods } from "@/lib/content";
+import { getAcceptedItems, getContact, getCurrentCampaign, getGiveMethods, getPageText } from "@/lib/content";
+import { lines } from "@/lib/page-text";
 
 export const metadata: Metadata = {
   title: "Get Involved — Donate Waste",
@@ -14,27 +15,29 @@ export const metadata: Metadata = {
 
 const METHOD_ICONS = { dropoff: Box, school: School, pickup: Truck } as const;
 
-const tips = [
-  "रद्दी कोरडी ठेवा — ओली रद्दी विकली जात नाही.",
-  "पेपर, पुठ्ठा, प्लास्टिक व धातू वेगवेगळे ठेवा.",
-  "पेपरचे गठ्ठे दोरीने बांधा.",
-  "पुस्तके चांगल्या स्थितीत असल्यास वेगळी ठेवा — गरजू विद्यार्थ्यांना देता येतील.",
-];
+const VOLUNTEER_ICONS = [School, Users, Truck];
 
 export default async function GetInvolvedPage() {
-  const [methods, items, contact, campaign] = await Promise.all([
+  const [methods, items, contact, campaign, t, how] = await Promise.all([
     getGiveMethods(),
     getAcceptedItems(),
     getContact(),
     getCurrentCampaign(),
+    getPageText("get_involved"),
+    getPageText("how_it_works"),
   ]);
+  const volunteer = VOLUNTEER_ICONS.map((Icon, i) => ({
+    Icon,
+    titleEn: t[`volunteer${i + 1}Title` as "volunteer1Title"],
+    textMr: t[`volunteer${i + 1}Text` as "volunteer1Text"],
+  }));
 
   return (
     <>
       <PageHero
         eyebrow="Donate Waste"
-        title="Get Involved"
-        intro="तुमच्या घरातील, शाळेतील किंवा कार्यालयातील रद्दी आम्हाला द्या. तिच्यातून वर्ध्यात झाडे लागतील — आणि आम्ही ती मोठी होईपर्यंत जपू."
+        title={t.heroTitle}
+        intro={t.heroIntro}
       >
         <div className="mt-2 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
           <LinkButton href="#pickup" size="lg">
@@ -49,7 +52,7 @@ export default async function GetInvolvedPage() {
       {/* HOW TO GIVE */}
       <Section tone="cream" labelledBy="give-title">
         <div className="flex flex-col gap-10">
-          <SectionHeading id="give-title" eyebrow="3 Easy Ways" title="How to Give" intro="तुम्हाला सोयीचा मार्ग निवडा." />
+          <SectionHeading id="give-title" eyebrow="3 Easy Ways" title={t.giveTitle} intro={t.giveIntro} />
           <ul className="grid gap-5 md:grid-cols-3">
             {methods.map((m, i) => {
               const Icon = METHOD_ICONS[m.icon];
@@ -93,17 +96,17 @@ export default async function GetInvolvedPage() {
       {/* WHAT WE ACCEPT */}
       <Section id="accept" tone="white" labelledBy="accept-title">
         <div className="flex flex-col gap-10">
-          <SectionHeading id="accept-title" eyebrow="Before You Give" title="What We Accept" />
+          <SectionHeading id="accept-title" eyebrow="Before You Give" title={how.acceptTitle} />
           <AcceptedItems items={items} />
           <div className="reveal rounded-[22px] border border-mint-line bg-mint p-6">
             <h3 lang="en" className="m-0 text-xl font-bold">
               Quick Tips
             </h3>
             <ul className="m-0 mt-3 grid gap-2 sm:grid-cols-2">
-              {tips.map((t) => (
-                <li key={t} className="flex gap-2.5">
+              {lines(t.tips).map((tip) => (
+                <li key={tip} className="flex gap-2.5">
                   <Check size={22} className="mt-0.5 shrink-0 text-brand" />
-                  {t}
+                  {tip}
                 </li>
               ))}
             </ul>
@@ -118,8 +121,8 @@ export default async function GetInvolvedPage() {
             <SectionHeading
               id="pickup-title"
               eyebrow="Home & School Pickup"
-              title="Request a Pickup"
-              intro="जास्त रद्दी आहे? माहिती भरा आणि WhatsApp वर पाठवा. आमची टीम तुम्हाला वेळ कळवेल."
+              title={t.pickupTitle}
+              intro={t.pickupIntro}
               align="left"
             />
             <div className="reveal flex flex-col gap-3">
@@ -132,6 +135,11 @@ export default async function GetInvolvedPage() {
                   <WhatsApp size={20} /> <span lang="en">WhatsApp</span>
                 </AnchorButton>
               </div>
+              {contact.whatsappGroupUrl && (
+                <AnchorButton href={contact.whatsappGroupUrl} target="_blank" rel="noopener noreferrer" variant="primary" className="self-start">
+                  <WhatsApp size={20} /> आमच्या <span lang="en">WhatsApp</span> ग्रुपमध्ये सामील व्हा
+                </AnchorButton>
+              )}
               {contact.isPlaceholder && <SampleNote force>फोन / WhatsApp नंबर नमुना आहे</SampleNote>}
             </div>
           </div>
@@ -147,15 +155,11 @@ export default async function GetInvolvedPage() {
           <SectionHeading
             id="volunteer-title"
             eyebrow="More Ways to Help"
-            title="Volunteer With Us"
-            intro="रद्दी नसेल तरी तुम्ही मदत करू शकता — वेळ देऊन."
+            title={t.volunteerTitle}
+            intro={t.volunteerIntro}
           />
           <ul className="grid gap-5 md:grid-cols-3">
-            {[
-              { Icon: School, titleEn: "Schools & Colleges", textMr: "तुमच्या संस्थेत 'हरित सेना' सुरू करा. रद्दी संकलन मोहीम घ्या आणि विद्यार्थ्यांना झाड दत्तक द्या." },
-              { Icon: Users, titleEn: "Weekend Volunteers", textMr: "रविवारी सकाळी वृक्षारोपण, पाणी देणे आणि संरक्षक जाळी लावण्याच्या कामात सहभागी व्हा." },
-              { Icon: Truck, titleEn: "Offer Support", textMr: "रोपे, जाळी, पाण्याचा टँकर, वाहन किंवा जागा देऊन मदत करू शकता. आमच्याशी बोला." },
-            ].map(({ Icon, titleEn, textMr }, i) => (
+            {volunteer.map(({ Icon, titleEn, textMr }, i) => (
               <li key={titleEn} className="reveal flex flex-col gap-3 rounded-[22px] bg-cream p-6" style={revealDelay(i)}>
                 <Icon size={30} className="text-brand" />
                 <h3 lang="en" className="m-0 text-[22px] font-bold">
@@ -173,11 +177,13 @@ export default async function GetInvolvedPage() {
         </div>
       </Section>
 
-      <section aria-labelledby="campaign-title" className="bg-mint">
-        <Container className="py-14 md:py-16">
-          <CampaignCard campaign={campaign} showCta={false} />
-        </Container>
-      </section>
+      {campaign && (
+        <section aria-labelledby="campaign-title" className="bg-mint">
+          <Container className="py-14 md:py-16">
+            <CampaignCard campaign={campaign} showCta={false} />
+          </Container>
+        </section>
+      )}
     </>
   );
 }

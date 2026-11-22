@@ -9,23 +9,49 @@ import { ArrowRight } from "@/components/icons";
 import { LeafDecor } from "@/components/LeafDecor";
 import { LeaderboardRow } from "@/components/LeaderboardRow";
 import { PlantingCard } from "@/components/PlantingCard";
+import { HomePhotos } from "@/components/home/HomePhotos";
 import { Container, LinkButton, revealDelay, SampleNote, Section, SectionHeading } from "@/components/ui";
 import { WorkflowSteps } from "@/components/WorkflowSteps";
 import {
   getContact,
   getCurrentCampaign,
   getFeaturedVideo,
+  getHomePhotos,
   getImpactStats,
   getLeaderboard,
+  getPageText,
   getPlantings,
   getSiteInfo,
   getValues,
   getWorkflow,
 } from "@/lib/content";
 import { rankEntries } from "@/lib/leaderboard";
+import { lines } from "@/lib/page-text";
+
+/** "Your Scrap Can\nGrow a Forest" → two lines, last word underlined in green. */
+function HeroTitle({ text }: { text: string }) {
+  const rows = lines(text);
+  return rows.map((row, i) => {
+    const isLast = i === rows.length - 1;
+    const words = row.split(/\s+/);
+    const last = isLast ? words.pop() : undefined;
+    return (
+      <span key={i}>
+        {i > 0 && <br />}
+        {words.join(" ")}
+        {last && (
+          <>
+            {words.length ? " " : ""}
+            <span className="text-brand underline decoration-leaf decoration-[6px] underline-offset-[10px]">{last}</span>
+          </>
+        )}
+      </span>
+    );
+  });
+}
 
 export default async function HomePage() {
-  const [site, contact, stats, steps, video, plantings, leaderboard, campaign, values] = await Promise.all([
+  const [site, contact, stats, steps, video, plantings, leaderboard, campaign, values, t, homePhotos] = await Promise.all([
     getSiteInfo(),
     getContact(),
     getImpactStats(),
@@ -35,6 +61,8 @@ export default async function HomePage() {
     getLeaderboard(),
     getCurrentCampaign(),
     getValues(),
+    getPageText("home"),
+    getHomePhotos(),
   ]);
   const top5 = rankEntries(leaderboard).slice(0, 5);
   const maxTrees = top5[0]?.trees ?? 0;
@@ -61,27 +89,26 @@ export default async function HomePage() {
         <Container className="relative grid items-center gap-10 py-12 md:py-20 lg:grid-cols-[1.15fr_1fr] lg:gap-12">
           <div className="hero-enter flex flex-col gap-5">
             <span className="self-start rounded-full border border-mint-line bg-white px-4 py-1.5 text-[15px] font-semibold text-brand">
-              {site.placeMr} · हिरव्या वर्ध्यासाठी
+              {t.heroBadge}
             </span>
             <h1
               id="hero-title"
               lang="en"
               className="m-0 text-[clamp(40px,6vw,68px)] leading-[1.04] font-extrabold text-forest-900"
             >
-              Your Scrap Can
-              <br />
-              Grow a <span className="text-brand underline decoration-leaf decoration-[6px] underline-offset-[10px]">Forest</span>
+              <HeroTitle text={t.heroTitle} />
             </h1>
-            <p className="m-0 max-w-[560px] text-lg text-ink-soft md:text-xl">
-              शाळा, महाविद्यालये आणि नागरिकांकडून मिळालेली रद्दी, पेपर आणि भंगार आम्ही विकतो आणि त्या पैशातून वर्धा शहरात झाडे लावतो.
-              प्रत्येक झाड मोठे होईपर्यंत आमची टीम त्याला पाणी घालते आणि त्याची काळजी घेते.
-            </p>
+            {lines(t.heroIntro).map((para, i) => (
+              <p key={i} className="m-0 max-w-[560px] text-lg text-ink-soft md:text-xl">
+                {para}
+              </p>
+            ))}
             <div className="mt-1 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
               <LinkButton href="/get-involved" size="lg">
-                रद्दी दान करा <ArrowRight size={20} />
+                {t.heroButtonPrimary} <ArrowRight size={20} />
               </LinkButton>
               <LinkButton href="/our-work" variant="outline" size="lg">
-                आमचे काम पहा
+                {t.heroButtonSecondary}
               </LinkButton>
             </div>
             <p className="m-0 text-base text-muted italic">“{site.mottoMr}”</p>
@@ -93,7 +120,7 @@ export default async function HomePage() {
       </section>
 
       {/* IMPACT NUMBERS */}
-      <ImpactStats stats={stats} />
+      <ImpactStats stats={stats} title={t.impactTitle} intro={t.impactIntro} />
 
       {/* ABOUT PREVIEW */}
       <Section tone="white" labelledBy="about-title">
@@ -114,15 +141,12 @@ export default async function HomePage() {
             </div>
           </div>
           <div className="flex flex-col gap-4">
-            <SectionHeading id="about-title" eyebrow="About Us" title="Planting Trees, Caring for Life" align="left" />
-            <p className="reveal m-0 text-ink-soft">
-              वृक्ष सेवा समिती, सिंदी (मेघे), वर्धा ही पर्यावरणासाठी काम करणारी समिती आहे. “{site.mottoMr}” हे आमचे ब्रीदवाक्य आहे.
-              आम्ही फक्त झाडे लावत नाही, तर ती मोठी होईपर्यंत त्यांची काळजी घेतो.
-            </p>
-            <p className="reveal m-0 text-ink-soft">
-              लोकांकडून मिळालेली रद्दी आणि भंगार विकून येणारा पैसा वृक्षारोपणासाठी वापरला जातो. त्यामुळे कचरा कमी होतो आणि हिरवळ
-              वाढते — दोन्ही एकाच वेळी.
-            </p>
+            <SectionHeading id="about-title" eyebrow={t.aboutEyebrow} title={t.aboutTitle} align="left" />
+            {lines(t.aboutText).map((para, i) => (
+              <p key={i} className="reveal m-0 text-ink-soft">
+                {para}
+              </p>
+            ))}
             <ul className="mt-1 grid gap-3 sm:grid-cols-3">
               {values.map((v, i) => (
                 <li key={v.titleEn} className="reveal rounded-2xl border border-line p-4" style={revealDelay(i)}>
@@ -145,9 +169,9 @@ export default async function HomePage() {
         <div className="flex flex-col gap-10">
           <SectionHeading
             id="how-title"
-            eyebrow="Our Workflow"
-            title="How It Works"
-            intro="रद्दी देण्यापासून झाड मोठे होईपर्यंत — फक्त ५ सोप्या पायऱ्या."
+            eyebrow={t.workflowEyebrow}
+            title={t.workflowTitle}
+            intro={t.workflowIntro}
           />
           <WorkflowSteps steps={steps} />
           <div className="reveal flex justify-center">
@@ -161,7 +185,7 @@ export default async function HomePage() {
       {/* FEATURED VIDEO */}
       <Section tone="white" labelledBy="video-title" className="overflow-hidden">
         <div className="flex flex-col gap-10">
-          <SectionHeading id="video-title" eyebrow="Watch" title={video.titleEn} intro="एक छोटा व्हिडिओ — आवाजासह. प्ले बटण दाबल्यावरच सुरू होतो." />
+          <SectionHeading id="video-title" eyebrow="Watch" title={video.titleEn} intro={t.videoIntro} />
           <FeaturedVideo video={video} />
         </div>
       </Section>
@@ -172,8 +196,8 @@ export default async function HomePage() {
           <SectionHeading
             id="plantings-title"
             eyebrow="Our Work"
-            title="Latest Plantings"
-            intro="नुकत्याच झालेल्या वृक्षारोपण मोहिमा — आणि त्यातील किती झाडे जगली, तेही."
+            title={t.plantingsTitle}
+            intro={t.plantingsIntro}
           />
           <ul className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
             {plantings.map((p, i) => (
@@ -190,6 +214,9 @@ export default async function HomePage() {
         </div>
       </Section>
 
+      {/* PHOTOS CHOSEN FOR HOME (hidden until the admin ticks "Show on Home") */}
+      {homePhotos.length > 0 && <HomePhotos photos={homePhotos} title={t.galleryTitle} intro={t.galleryIntro} />}
+
       {/* LEADERBOARD TOP 5 */}
       <Section tone="white" labelledBy="leaders-title">
         <div className="grid gap-10 lg:grid-cols-[1fr_1.4fr] lg:items-center lg:gap-14">
@@ -197,8 +224,8 @@ export default async function HomePage() {
             <SectionHeading
               id="leaders-title"
               eyebrow="Leaderboard"
-              title="Our Green Champions"
-              intro="ज्यांच्या रद्दीमुळे सर्वाधिक झाडे लागली — शाळा, महाविद्यालये, संस्था आणि नागरिक. मनःपूर्वक धन्यवाद!"
+              title={t.leadersTitle}
+              intro={t.leadersIntro}
               align="left"
             />
             <div className="reveal flex flex-col items-start gap-3">
@@ -217,11 +244,13 @@ export default async function HomePage() {
       </Section>
 
       {/* CURRENT CAMPAIGN */}
-      <section aria-labelledby="campaign-title" className="bg-mint">
-        <Container className="py-14 md:py-16">
-          <CampaignCard campaign={campaign} />
-        </Container>
-      </section>
+      {campaign && (
+        <section aria-labelledby="campaign-title" className="bg-mint">
+          <Container className="py-14 md:py-16">
+            <CampaignCard campaign={campaign} />
+          </Container>
+        </section>
+      )}
 
       {/* CALL TO ACTION */}
       <CtaBanner />

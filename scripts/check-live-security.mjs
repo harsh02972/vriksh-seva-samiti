@@ -34,6 +34,7 @@ const fail = (msg) => {
   failures++;
   console.log(`  ✖ ${msg}`);
 };
+const check = (passed, passMsg, failMsg) => (passed ? ok(passMsg) : fail(failMsg));
 
 async function get(path) {
   const res = await fetch(`${url}${path}`, { headers });
@@ -59,13 +60,13 @@ for (const path of [
   "/rest/v1/planting_updates?select=*",
 ]) {
   const r = await get(path);
-  denied(r) ? ok(`${path} → blocked (${r.status})`) : fail(`${path} → returned data! ${JSON.stringify(r.body).slice(0, 200)}`);
+  check(denied(r), `${path} → blocked (${r.status})`, `${path} → returned data! ${JSON.stringify(r.body).slice(0, 200)}`);
 }
 
 {
   const res = await fetch(`${url}/rest/v1/rpc/admin_dashboard_totals`, { method: "POST", headers, body: "{}" });
   const body = await res.text();
-  res.status >= 400 || body.trim() === "[]" ? ok(`rpc/admin_dashboard_totals → blocked (${res.status})`) : fail(`rpc/admin_dashboard_totals → ${body.slice(0, 200)}`);
+  check(res.status >= 400 || body.trim() === "[]", `rpc/admin_dashboard_totals → blocked (${res.status})`, `rpc/admin_dashboard_totals → ${body.slice(0, 200)}`);
 }
 
 console.log("\nPublic views must work and contain no amounts:");
@@ -85,7 +86,7 @@ for (const view of [
   }
   const keys = new Set((r.body ?? []).flatMap((row) => Object.keys(row)));
   const bad = [...keys].filter((k) => AMOUNT.test(k));
-  bad.length ? fail(`${view} has amount columns: ${bad.join(", ")}`) : ok(`${view} → ${r.body.length} rows, no amount columns`);
+  check(bad.length === 0, `${view} → ${r.body.length} rows, no amount columns`, `${view} has amount columns: ${bad.join(", ")}`);
 }
 
 console.log("\nAPI description must not mention amounts:");
@@ -93,7 +94,7 @@ console.log("\nAPI description must not mention amounts:");
   const res = await fetch(`${url}/rest/v1/`, { headers });
   const text = await res.text();
   if (res.status >= 400) ok(`OpenAPI description not available to anon (${res.status})`);
-  else /amount_rs/.test(text) ? fail("OpenAPI description lists amount_rs") : ok("OpenAPI description has no amount_rs");
+  else check(!/amount_rs/.test(text), "OpenAPI description has no amount_rs", "OpenAPI description lists amount_rs");
 }
 {
   const res = await fetch(`${url}/graphql/v1`, {
@@ -102,7 +103,7 @@ console.log("\nAPI description must not mention amounts:");
     body: JSON.stringify({ query: "{ __schema { types { name fields { name } } } }" }),
   });
   const text = await res.text();
-  /amount_?rs/i.test(text) ? fail("GraphQL schema exposes an amount field") : ok(`GraphQL schema has no amount field (${res.status})`);
+  check(!/amount_?rs/i.test(text), `GraphQL schema has no amount field (${res.status})`, "GraphQL schema exposes an amount field");
 }
 
 console.log("\nUploads must be blocked:");
@@ -112,7 +113,7 @@ console.log("\nUploads must be blocked:");
     headers: { apikey: key, "Content-Type": "image/webp" },
     body: new Uint8Array([1, 2, 3]),
   });
-  res.status >= 400 ? ok(`anonymous upload → blocked (${res.status})`) : fail(`anonymous upload succeeded (${res.status}) — check 0007_storage.sql`);
+  check(res.status >= 400, `anonymous upload → blocked (${res.status})`, `anonymous upload succeeded (${res.status}) — check 0007_storage.sql`);
 }
 
 console.log(failures ? `\n✖ ${failures} problem(s) found.` : "\n✔ All live checks passed. Amounts are not readable by the public.");
