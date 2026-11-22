@@ -177,7 +177,7 @@ function Lightbox({
       role="dialog"
       aria-modal="true"
       aria-label={`फोटो ${toMarathiDigits(index + 1)} / ${toMarathiDigits(count)}: ${photo.captionMr}`}
-      className="lightbox fixed inset-0 z-[100] flex flex-col bg-[#0b1f11]/96 text-white"
+      className="lightbox fixed inset-0 z-[100] flex flex-col bg-[rgba(11,31,17,0.97)] text-white"
     >
       <div className="flex items-center justify-between gap-3 px-3 py-3 sm:px-5">
         <span className="rounded-full bg-white/10 px-3 py-1 text-sm font-semibold tabular-nums">

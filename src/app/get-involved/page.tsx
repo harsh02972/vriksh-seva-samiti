@@ -85,7 +85,7 @@ export default async function GetInvolvedPage() {
                 <p className="m-0 text-on-dark">{contact.collectionHoursMr}</p>
               </div>
             </div>
-            {contact.isPlaceholder && <SampleNote force>पत्ता व वेळ नमुना आहेत</SampleNote>}
+            {contact.isPlaceholder && <SampleNote force className="justify-self-start">पत्ता व वेळ नमुना आहेत</SampleNote>}
           </div>
         </div>
       </Section>

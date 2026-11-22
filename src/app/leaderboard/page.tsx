@@ -18,7 +18,7 @@ export default async function LeaderboardPage() {
   const top3 = rankEntries(entries).slice(0, 3);
   // Podium order: 2nd, 1st, 3rd
   const podium = [top3[1], top3[0], top3[2]].filter(Boolean);
-  const heights = { 1: "sm:h-[220px]", 2: "sm:h-[180px]", 3: "sm:h-[150px]" } as const;
+  const heights = { 1: "sm:min-h-[230px]", 2: "sm:min-h-[200px]", 3: "sm:min-h-[180px]" } as const;
 
   return (
     <>
@@ -43,7 +43,9 @@ export default async function LeaderboardPage() {
                 className={`reveal flex flex-col items-center justify-end gap-2 rounded-[22px] border bg-white p-5 text-center shadow-[var(--shadow-card)] ${heights[place] ?? ""} ${place === 1 ? "order-first border-sun sm:order-none" : "border-line"}`}
                 style={revealDelay(place === 1 ? 0 : i + 1, 140)}
               >
-                <Medal place={place} size={place === 1 ? 56 : 46} />
+                <span className="shrink-0">
+                  <Medal place={place} size={place === 1 ? 56 : 46} />
+                </span>
                 <span className="sr-only">{["पहिला", "दुसरा", "तिसरा"][place - 1]} क्रमांक</span>
                 <span className="leading-snug font-bold text-forest-900">{e.nameMr}</span>
                 <span className="text-sm text-muted">{CONTRIBUTOR_LABEL_MR[e.type]}</span>
