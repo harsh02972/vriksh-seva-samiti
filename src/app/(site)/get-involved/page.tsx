@@ -7,11 +7,13 @@ import { PickupRequest } from "@/components/PickupRequest";
 import { AnchorButton, Container, LinkButton, revealDelay, SampleNote, Section, SectionHeading } from "@/components/ui";
 import { getAcceptedItems, getContact, getCurrentCampaign, getGiveMethods, getPageText } from "@/lib/content";
 import { lines } from "@/lib/page-text";
+import { pageMetadata } from "@/lib/seo";
 
-export const metadata: Metadata = {
+export const metadata: Metadata = pageMetadata({
   title: "Get Involved — Donate Waste",
   description: "रद्दी, पेपर, पुठ्ठा आणि भंगार दान करा — केंद्रावर आणा, शाळेत मोहीम घ्या किंवा घरून उचल ठरवा. स्वयंसेवक व्हा.",
-};
+  path: "/get-involved",
+});
 
 const METHOD_ICONS = { dropoff: Box, school: School, pickup: Truck } as const;
 

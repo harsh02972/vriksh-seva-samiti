@@ -1,8 +1,9 @@
 "use server";
 
-import { redirect } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 import { z } from "zod";
 import { failure, type FormState } from "@/lib/admin/forms";
+import { isAdminEnabled } from "@/lib/flags";
 import { isSupabaseConfigured } from "@/lib/supabase/env";
 import { getServerClient } from "@/lib/supabase/server";
 
@@ -12,6 +13,7 @@ const credentials = z.object({
 });
 
 export async function signIn(_: FormState, formData: FormData): Promise<FormState> {
+  if (!isAdminEnabled()) notFound(); // admin login is off
   if (!isSupabaseConfigured()) return failure("Supabase is not set up yet (see README → Phase 2 setup).");
   const parsed = credentials.safeParse({ email: formData.get("email"), password: formData.get("password") });
   if (!parsed.success) return failure("ईमेल व पासवर्ड भरा · Enter email and password.");

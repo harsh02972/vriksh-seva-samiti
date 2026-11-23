@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
 import { CampaignCard } from "@/components/CampaignCard";
@@ -10,6 +11,8 @@ import { LeafDecor } from "@/components/LeafDecor";
 import { LeaderboardRow } from "@/components/LeaderboardRow";
 import { PlantingCard } from "@/components/PlantingCard";
 import { HomePhotos } from "@/components/home/HomePhotos";
+import { site as siteDefaults } from "@/data/site";
+import { pageMetadata } from "@/lib/seo";
 import { Container, LinkButton, revealDelay, SampleNote, Section, SectionHeading } from "@/components/ui";
 import { WorkflowSteps } from "@/components/WorkflowSteps";
 import {
@@ -49,6 +52,8 @@ function HeroTitle({ text }: { text: string }) {
     );
   });
 }
+
+export const metadata: Metadata = pageMetadata({ description: siteDefaults.descriptionMr, path: "/" });
 
 export default async function HomePage() {
   const [site, contact, stats, steps, video, plantings, leaderboard, campaign, values, t, homePhotos] = await Promise.all([

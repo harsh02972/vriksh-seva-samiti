@@ -63,3 +63,46 @@ test("built public pages contain no amounts (run after npm run build)", (t) => {
   const offenders = files.filter((f) => /amount_rs|₹/.test(readFileSync(f, "utf8"))).map(rel);
   assert.deepEqual(offenders, []);
 });
+
+test("the admin is off unless ADMIN_ENABLED is exactly \"true\"", async () => {
+  const { isAdminEnabled } = await import("../src/lib/flags.ts");
+  const before = process.env.ADMIN_ENABLED;
+  try {
+    for (const v of [undefined, "", "false", "TRUE", "1", "yes", " true"]) {
+      if (v === undefined) delete process.env.ADMIN_ENABLED;
+      else process.env.ADMIN_ENABLED = v;
+      assert.equal(isAdminEnabled(), false, `ADMIN_ENABLED=${JSON.stringify(v)} must keep the admin off`);
+    }
+    process.env.ADMIN_ENABLED = "true";
+    assert.equal(isAdminEnabled(), true);
+  } finally {
+    if (before === undefined) delete process.env.ADMIN_ENABLED;
+    else process.env.ADMIN_ENABLED = before;
+  }
+
+  // Every way into the admin checks the switch first: the proxy (all /admin URLs),
+  // the admin layout (every page), requireAdmin (every admin action) and sign-in.
+  const proxy = readFileSync(join(root, "src/proxy.ts"), "utf8");
+  assert.match(proxy, /export async function proxy\([^)]*\) \{\s*if \(!isAdminEnabled\(\)\)/);
+  assert.match(readFileSync(join(root, "src/app/admin/layout.tsx"), "utf8"), /if \(!isAdminEnabled\(\)\) notFound\(\)/);
+  assert.match(readFileSync(join(root, "src/lib/admin/auth.ts"), "utf8"), /cache\(async \(\)[^{]*\{\s*if \(!isAdminEnabled\(\)\) notFound\(\)/);
+  assert.match(readFileSync(join(root, "src/app/admin/actions.ts"), "utf8"), /signIn\([^)]*\)[^{]*\{\s*if \(!isAdminEnabled\(\)\) notFound\(\)/);
+});
+
+test("every public page has its own title, description and canonical URL", () => {
+  const pages = walk(join(root, "src/app/(site)")).filter((p) => p.endsWith("page.tsx"));
+  assert.ok(pages.length >= 9);
+  const titles = new Set();
+  for (const file of pages) {
+    const code = readFileSync(file, "utf8");
+    const m = code.match(/pageMetadata\(\{([\s\S]*?)\}\)/);
+    assert.ok(m, `${rel(file)} must export metadata built with pageMetadata()`);
+    assert.match(m[1], /description:/, `${rel(file)} needs a description`);
+    const path = m[1].match(/path: "([^"]+)"/)?.[1];
+    const expected = "/" + rel(file).replace("src/app/(site)/", "").replace(/\/?page\.tsx$/, "");
+    assert.equal(path, expected, `${rel(file)} canonical path`);
+    const title = m[1].match(/title: "([^"]+)"/)?.[1] ?? "(home)";
+    assert.ok(!titles.has(title), `duplicate title "${title}"`);
+    titles.add(title);
+  }
+});

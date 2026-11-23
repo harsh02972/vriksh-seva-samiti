@@ -1,12 +1,21 @@
 import { createServerClient } from "@supabase/ssr";
 import { type NextRequest, NextResponse } from "next/server";
+import { isAdminEnabled } from "@/lib/flags";
 
 /**
- * Runs only for /admin. Keeps the admin's Supabase session fresh and sends anyone
+ * Runs only for /admin. When the admin is switched off (ADMIN_ENABLED is not "true")
+ * every /admin URL shows the normal 404 page and nothing else runs, not even login.
+ *
+ * Otherwise it keeps the admin's Supabase session fresh and sends anyone
  * who is not signed in to the login page. (Admin rights are checked again on the
  * server for every page and action, and by the database itself.)
  */
 export async function proxy(request: NextRequest) {
+  if (!isAdminEnabled()) {
+    // Rewrite to a path that does not exist: Next renders the site's 404 page with status 404.
+    return withAdminHeaders(NextResponse.rewrite(new URL("/__admin-disabled", request.url), { status: 404 }));
+  }
+
   let response = NextResponse.next({ request });
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
   const key = process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY;

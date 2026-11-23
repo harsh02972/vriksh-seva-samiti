@@ -8,11 +8,13 @@ import { PageHero } from "@/components/PageHero";
 import { Container, revealDelay, SampleNote, Section, SectionHeading } from "@/components/ui";
 import { getCurrentCampaign, getImpactStats, getPageImages, getPageText, getSiteInfo, getValues } from "@/lib/content";
 import { lines } from "@/lib/page-text";
+import { pageMetadata } from "@/lib/seo";
 
-export const metadata: Metadata = {
+export const metadata: Metadata = pageMetadata({
   title: "About Us",
   description: "वृक्ष सेवा समिती, सिंदी (मेघे), वर्धा — आमचे ध्येय, आमचे काम आणि आमची टीम.",
-};
+  path: "/about",
+});
 
 const PROMISE_ICONS = [Sprout, Droplet, School, Users];
 

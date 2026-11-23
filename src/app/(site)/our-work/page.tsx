@@ -7,11 +7,13 @@ import { PlantingCard } from "@/components/PlantingCard";
 import { LinkButton, revealDelay, SampleNote, Section, SectionHeading } from "@/components/ui";
 import { getPlantings } from "@/lib/content";
 import { percent, toMarathiDigits } from "@/lib/format";
+import { pageMetadata } from "@/lib/seo";
 
-export const metadata: Metadata = {
+export const metadata: Metadata = pageMetadata({
   title: "Our Work",
   description: "वर्धा शहरातील आमच्या वृक्षारोपण मोहिमा — ठिकाण, तारीख, झाडांच्या जाती आणि किती झाडे जगली.",
-};
+  path: "/our-work",
+});
 
 export default async function OurWorkPage() {
   const plantings = await getPlantings();

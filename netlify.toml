@@ -1,10 +1,20 @@
-# Netlify detects Next.js automatically and uses its Next.js runtime (OpenNext adapter).
+# Netlify build settings for this Next.js 16 site.
+# Netlify detects Next.js and runs it with its Next.js runtime (OpenNext adapter,
+# @netlify/plugin-nextjs, installed automatically). Server rendering, the 1-minute
+# page refresh, image optimisation and proxy.ts all work through that runtime.
+# Do NOT add a "next export" step or change publish: it must stay ".next".
+#
+# Environment variables are set in the Netlify UI (Site configuration → Environment
+# variables), not here, so they can change without a commit. See README → "Go live".
+
 [build]
   command = "npm run build"
   publish = ".next"
 
 [build.environment]
+  # Next.js 16 needs Node 20.9+; 22 is the current LTS on Netlify.
   NODE_VERSION = "22"
+  NEXT_TELEMETRY_DISABLED = "1"
 
 [[headers]]
   for = "/*"
@@ -14,7 +24,14 @@
     X-Frame-Options = "SAMEORIGIN"
     Permissions-Policy = "camera=(), microphone=(), geolocation=(self)"
 
-# Admin area: never indexed, never cached by browsers or the CDN.
+# Admin area: never indexed, never cached by browsers or the CDN
+# (it is a 404 anyway unless ADMIN_ENABLED is "true").
+[[headers]]
+  for = "/admin"
+  [headers.values]
+    X-Robots-Tag = "noindex, nofollow"
+    Cache-Control = "private, no-store"
+
 [[headers]]
   for = "/admin/*"
   [headers.values]

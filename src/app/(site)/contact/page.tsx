@@ -4,11 +4,13 @@ import { PageHero } from "@/components/PageHero";
 import { AnchorButton, LinkButton, revealDelay, SampleNote, Section, SectionHeading } from "@/components/ui";
 import { getContact, getPageText } from "@/lib/content";
 import { parseFaqs } from "@/lib/page-text";
+import { pageMetadata } from "@/lib/seo";
 
-export const metadata: Metadata = {
+export const metadata: Metadata = pageMetadata({
   title: "Contact",
   description: "वृक्ष सेवा समिती, सिंदी (मेघे), वर्धा — फोन, WhatsApp, ईमेल आणि पत्ता.",
-};
+  path: "/contact",
+});
 
 export default async function ContactPage() {
   const [contact, t] = await Promise.all([getContact(), getPageText("contact")]);

@@ -1,6 +1,7 @@
 import "server-only";
-import { redirect } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 import { cache } from "react";
+import { isAdminEnabled } from "../flags";
 import { isSupabaseConfigured } from "../supabase/env";
 import { getServerClient } from "../supabase/server";
 
@@ -17,6 +18,7 @@ export type AdminSession = {
  * The database enforces the same rule again (is_admin() in every policy).
  */
 export const requireAdmin = cache(async (): Promise<AdminSession> => {
+  if (!isAdminEnabled()) notFound(); // admin switched off: no admin page or action runs
   if (!isSupabaseConfigured()) redirect("/admin/login?reason=setup");
   const supabase = await getServerClient();
   const {

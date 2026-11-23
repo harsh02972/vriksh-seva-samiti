@@ -3,11 +3,13 @@ import { PageHero } from "@/components/PageHero";
 import { Section } from "@/components/ui";
 import { getContact, getSiteInfo } from "@/lib/content";
 import { formatDateMr } from "@/lib/format";
+import { pageMetadata } from "@/lib/seo";
 
-export const metadata: Metadata = {
+export const metadata: Metadata = pageMetadata({
   title: "Privacy Policy",
   description: "वृक्ष सेवा समितीच्या वेबसाइटचे गोपनीयता धोरण — आम्ही कोणती माहिती वापरतो आणि कशी.",
-};
+  path: "/privacy",
+});
 
 const LAST_UPDATED = "2026-11-23";
 

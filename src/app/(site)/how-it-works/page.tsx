@@ -8,11 +8,13 @@ import { LinkButton, revealDelay, Section, SectionHeading } from "@/components/u
 import { WorkflowSteps } from "@/components/WorkflowSteps";
 import { getAcceptedItems, getPageImages, getPageText, getWorkflow } from "@/lib/content";
 import { toMarathiDigits } from "@/lib/format";
+import { pageMetadata } from "@/lib/seo";
 
-export const metadata: Metadata = {
+export const metadata: Metadata = pageMetadata({
   title: "How It Works",
   description: "रद्दी संकलन, वजन, विक्री, वृक्षारोपण आणि संगोपन — वृक्ष सेवा समितीची ५ पायऱ्यांची प्रक्रिया.",
-};
+  path: "/how-it-works",
+});
 
 export default async function HowItWorksPage() {
   const [steps, items, images, t] = await Promise.all([

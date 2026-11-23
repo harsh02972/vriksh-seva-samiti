@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { Baloo_2, Mukta } from "next/font/google";
 import { site } from "@/data/site";
+import { HOME_TITLE, SHARE_IMAGE } from "@/lib/seo";
 import "./globals.css";
 
 // Baloo 2 is a variable font: one file per subset covers every weight.
@@ -21,7 +22,7 @@ const mukta = Mukta({
 export const metadata: Metadata = {
   metadataBase: new URL(site.siteUrl),
   title: {
-    default: `${site.nameEn} — ${site.taglineEn} | ${site.nameMr}, वर्धा`,
+    default: HOME_TITLE,
     template: `%s | ${site.nameEn}`,
   },
   description: site.descriptionMr,
@@ -32,13 +33,13 @@ export const metadata: Metadata = {
     siteName: site.nameEn,
     title: `${site.nameEn} — ${site.taglineEn}`,
     description: site.descriptionMr,
-    images: [{ url: "/og-image.jpg", width: 1200, height: 630, alt: `${site.nameEn} logo` }],
+    images: [SHARE_IMAGE],
   },
   twitter: {
     card: "summary_large_image",
     title: `${site.nameEn} — ${site.taglineEn}`,
     description: site.descriptionMr,
-    images: ["/og-image.jpg"],
+    images: [SHARE_IMAGE.url],
   },
   formatDetection: { telephone: false },
 };

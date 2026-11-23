@@ -7,11 +7,13 @@ import { revealDelay, SampleNote, Section } from "@/components/ui";
 import { getLeaderboard } from "@/lib/content";
 import { formatNumberMr } from "@/lib/format";
 import { CONTRIBUTOR_LABEL_MR, rankEntries } from "@/lib/leaderboard";
+import { pageMetadata } from "@/lib/seo";
 
-export const metadata: Metadata = {
+export const metadata: Metadata = pageMetadata({
   title: "Leaderboard",
   description: "ज्यांच्या रद्दीमुळे वर्ध्यात सर्वाधिक झाडे लागली — शाळा, महाविद्यालये, संस्था आणि नागरिक.",
-};
+  path: "/leaderboard",
+});
 
 export default async function LeaderboardPage() {
   const entries = await getLeaderboard();

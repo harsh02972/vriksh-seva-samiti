@@ -115,13 +115,23 @@ docs/demo-reference.html  the client-approved demo (design reference)
   It pauses when scrolled out of view. A text summary is available below the video.
 - **Pickup request** (Get Involved) has no backend: it builds a pre-filled WhatsApp message and opens WhatsApp. Nothing is stored.
 
-## Deploy to Netlify
+## Deploy to Netlify (go live)
 
-1. Push this repository to GitHub/GitLab.
-2. In Netlify: **Add new site → Import an existing project** → pick the repo.
-   Netlify detects Next.js; build command `npm run build` and the Next.js runtime are set up automatically (`netlify.toml` is included).
-3. Add the environment variables listed in [Phase 2 setup → step 4](#4-environment-variables) and deploy again.
-   `NEXT_PUBLIC_SITE_URL` is the live address; it is used for share previews, the sitemap and `robots.txt`.
+1. Push this repository to GitHub (a private repo is fine).
+2. In Netlify: **Add new site → Import an existing project → GitHub** → pick `vriksh-seva-samiti`.
+   Netlify detects Next.js. `netlify.toml` already sets the build command (`npm run build`), the publish folder
+   (`.next`) and Node 22; the Next.js runtime is added automatically. Leave those fields as they are.
+3. Before the first deploy, add the environment variables from [step 4](#4-environment-variables)
+   (**Site configuration → Environment variables**). Changing a variable later needs **Deploys → Trigger deploy**.
+   - `NEXT_PUBLIC_SITE_URL` must be the real address (e.g. `https://your-site.netlify.app` or your own domain).
+     Canonical URLs, share previews, the sitemap and `robots.txt` are built from it.
+   - Leave `ADMIN_ENABLED` **unset** for a public-only site: every `/admin` page is then a 404 and admin login is off.
+     Set it to `true` (and redeploy) only when you want the admin panel online.
+   - Without the Supabase variables the site still works and shows the built-in sample content.
+4. After the deploy, check: the home page loads, `/admin` shows the 404 page, `/robots.txt` and `/sitemap.xml`
+   show the real address, and a link pasted into WhatsApp shows the green logo card.
+
+The share image and favicons are made from `public/logo.png` by `node scripts/generate-brand-images.mjs`.
 
 ## Phase 2 setup
 
@@ -168,7 +178,7 @@ select id, email from auth.users where email = 'you@example.com';
 ```
 
 To remove an admin: `delete from public.admin_users where email = 'them@example.com';`
-(and delete the user under Authentication → Users). Then sign in at **`/admin`**.
+(and delete the user under Authentication → Users). Then set `ADMIN_ENABLED=true` in `.env.local` and sign in at **`/admin`**.
 
 ### 4. Environment variables
 
@@ -179,6 +189,7 @@ Find them in **Project Settings → API Keys** (and **Data API** for the URL). C
 | `NEXT_PUBLIC_SUPABASE_URL` | ✅ | ✅ | `https://<project-ref>.supabase.co` |
 | `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` | ✅ | ✅ | starts with `sb_publishable_`. Safe in the browser: it has only a visitor's rights |
 | `NEXT_PUBLIC_SITE_URL` | ✅ | ✅ | the live address, no trailing slash |
+| `ADMIN_ENABLED` | `true` when you use the admin | unset (public-only), or `true` | only the exact value `true` turns `/admin` on; anything else = 404 and no login |
 | `SUPABASE_SECRET_KEY` | ✅ only for `admin:create` | ❌ **never** | starts with `sb_secret_`. Bypasses all rules. Never commit it, never prefix it with `NEXT_PUBLIC_` |
 
 Netlify: **Site configuration → Environment variables → Add a variable**, then **Deploys → Trigger deploy**.

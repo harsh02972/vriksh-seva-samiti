@@ -4,11 +4,13 @@ import { Gallery } from "@/components/Gallery";
 import { PageHero } from "@/components/PageHero";
 import { SampleNote, Section } from "@/components/ui";
 import { getGallery } from "@/lib/content";
+import { pageMetadata } from "@/lib/seo";
 
-export const metadata: Metadata = {
+export const metadata: Metadata = pageMetadata({
   title: "Gallery",
   description: "रद्दी संकलन, वृक्षारोपण आणि झाडांच्या संगोपनाचे फोटो — ठिकाण व तारखेसह.",
-};
+  path: "/gallery",
+});
 
 export default async function GalleryPage() {
   const photos = await getGallery();
