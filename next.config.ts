@@ -13,6 +13,12 @@ const nextConfig: NextConfig = {
   cacheComponents: true,
   partialPrefetching: true,
   poweredByHeader: false,
+  // PRE-LAUNCH ONLY: keep search engines from indexing the demo/sample content.
+  // Remove this whole headers() block at launch. (robots.txt still allows crawling on
+  // purpose: Google must be able to fetch a page to see this noindex header.)
+  async headers() {
+    return [{ source: "/:path*", headers: [{ key: "X-Robots-Tag", value: "noindex, nofollow" }] }];
+  },
   images: {
     // Next 16 requires an explicit allow-list of qualities.
     qualities: [75],
